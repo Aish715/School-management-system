@@ -1,0 +1,123 @@
+/* src/components/Login.css */
+
+.login-page-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  background-color: #020a14; /* Dark blue background */
+}
+
+.floating-equations-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.floating-equations-bg span {
+  position: absolute;
+  top: 100%; /* Start equations at the bottom, off-screen */
+  font-size: 2.5rem;
+  font-family: 'Times New Roman', serif;
+  user-select: none;
+}
+
+/* Keyframes for a seamless, continuous floating animation */
+@keyframes float-rotate-1 {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-120vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+@keyframes float-rotate-2 {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-60vh) translateX(10vw) rotate(-20deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-120vh) translateX(-10vw) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+/* --- Role Selection Button Styling for Dark Mode --- */
+.role-button {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease-in-out !important;
+}
+.role-button:hover {
+  background-color: rgba(25, 118, 210, 0.1) !important;
+  border-color: #90caf9 !important; /* Lighter blue for dark mode */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* --- Apply animations and colors to all equations --- */
+.floating-equations-bg span:nth-child(5n + 1) { color: rgba(144, 202, 249, 0.7); } /* Light Blue */
+.floating-equations-bg span:nth-child(5n + 2) { color: rgba(244, 143, 177, 0.7); }  /* Light Pink */
+.floating-equations-bg span:nth-child(5n + 3) { color: rgba(128, 222, 234, 0.7); }   /* Light Teal */
+.floating-equations-bg span:nth-child(5n + 4) { color: rgba(255, 204, 128, 0.7); }  /* Light Orange */
+.floating-equations-bg span:nth-child(5n + 5) { color: rgba(179, 157, 219, 0.7); }  /* Light Purple */
+
+/* --- Distribute all 45 equations horizontally using 'left' --- */
+.floating-equations-bg span:nth-child(1) { left: 10%; animation: float-rotate-1 25s infinite linear; animation-delay: -5s; }
+.floating-equations-bg span:nth-child(2) { left: 15%; animation: float-rotate-2 30s infinite linear; animation-delay: -10s; }
+.floating-equations-bg span:nth-child(3) { left: 40%; animation: float-rotate-1 18s infinite linear; animation-delay: -2s; }
+.floating-equations-bg span:nth-child(4) { left: 70%; animation: float-rotate-2 22s infinite linear; animation-delay: -8s; }
+.floating-equations-bg span:nth-child(5) { left: 80%; animation: float-rotate-1 28s infinite linear; animation-delay: -15s; }
+.floating-equations-bg span:nth-child(6) { left: 90%; animation: float-rotate-2 20s infinite linear; animation-delay: -3s; }
+.floating-equations-bg span:nth-child(7) { left: 30%; animation: float-rotate-1 35s infinite linear; animation-delay: -12s; }
+.floating-equations-bg span:nth-child(8) { left: 5%; animation: float-rotate-2 26s infinite linear; animation-delay: -1s; }
+.floating-equations-bg span:nth-child(9) { left: 60%; animation: float-rotate-1 19s infinite linear; animation-delay: -6s; }
+.floating-equations-bg span:nth-child(10) { left: 75%; animation: float-rotate-2 24s infinite linear; animation-delay: -9s; }
+.floating-equations-bg span:nth-child(11) { left: 50%; animation: float-rotate-1 29s infinite linear; animation-delay: -7s; }
+.floating-equations-bg span:nth-child(12) { left: 35%; animation: float-rotate-2 21s infinite linear; animation-delay: -14s; }
+.floating-equations-bg span:nth-child(13) { left: 85%; animation: float-rotate-1 33s infinite linear; animation-delay: -4s; }
+.floating-equations-bg span:nth-child(14) { left: 25%; animation: float-rotate-2 27s infinite linear; animation-delay: -11s; }
+.floating-equations-bg span:nth-child(15) { left: 95%; animation: float-rotate-1 23s infinite linear; animation-delay: -1s; }
+.floating-equations-bg span:nth-child(16) { left: 95%; animation: float-rotate-2 31s infinite linear; animation-delay: -18s; }
+.floating-equations-bg span:nth-child(17) { left: 5%; animation: float-rotate-1 20s infinite linear; animation-delay: -20s; }
+.floating-equations-bg span:nth-child(18) { left: 15%; animation: float-rotate-2 25s infinite linear; animation-delay: -13s; }
+.floating-equations-bg span:nth-child(19) { left: 75%; animation: float-rotate-1 30s infinite linear; animation-delay: -5s; }
+.floating-equations-bg span:nth-child(20) { left: 5%; animation: float-rotate-2 22s infinite linear; animation-delay: -22s; }
+.floating-equations-bg span:nth-child(21) { left: 55%; animation: float-rotate-1 28s infinite linear; animation-delay: -3s; }
+.floating-equations-bg span:nth-child(22) { left: 20%; animation: float-rotate-2 26s infinite linear; animation-delay: -16s; }
+.floating-equations-bg span:nth-child(23) { left: 25%; animation: float-rotate-1 23s infinite linear; animation-delay: -8s; }
+.floating-equations-bg span:nth-child(24) { left: 80%; animation: float-rotate-2 29s infinite linear; animation-delay: -4s; }
+.floating-equations-bg span:nth-child(25) { left: 50%; animation: float-rotate-1 21s infinite linear; animation-delay: -19s; }
+.floating-equations-bg span:nth-child(26) { left: 20%; animation: float-rotate-2 32s infinite linear; animation-delay: -6s; }
+.floating-equations-bg span:nth-child(27) { left: 50%; animation: float-rotate-1 24s infinite linear; animation-delay: -12s; }
+.floating-equations-bg span:nth-child(28) { left: 50%; animation: float-rotate-2 20s infinite linear; animation-delay: -2s; }
+.floating-equations-bg span:nth-child(29) { left: 30%; animation: float-rotate-1 27s infinite linear; animation-delay: -17s; }
+.floating-equations-bg span:nth-child(30) { left: 70%; animation: float-rotate-2 25s infinite linear; animation-delay: -9s; }
+.floating-equations-bg span:nth-child(31) { left: 85%; animation: float-rotate-1 34s infinite linear; animation-delay: -1s; }
+.floating-equations-bg span:nth-child(32) { left: 10%; animation: float-rotate-2 22s infinite linear; animation-delay: -11s; }
+.floating-equations-bg span:nth-child(33) { left: 5%; animation: float-rotate-1 28s infinite linear; animation-delay: -21s; }
+.floating-equations-bg span:nth-child(34) { left: 95%; animation: float-rotate-2 26s infinite linear; animation-delay: -7s; }
+.floating-equations-bg span:nth-child(35) { left: 60%; animation: float-rotate-1 23s infinite linear; animation-delay: -15s; }
+.floating-equations-bg span:nth-child(36) { left: 40%; animation: float-rotate-2 30s infinite linear; animation-delay: -3s; }
+.floating-equations-bg span:nth-child(37) { left: 70%; animation: float-rotate-1 25s infinite linear; animation-delay: -10s; }
+.floating-equations-bg span:nth-child(38) { left: 30%; animation: float-rotate-2 28s infinite linear; animation-delay: -14s; }
+.floating-equations-bg span:nth-child(39) { left: 0%; animation: float-rotate-1 22s infinite linear; animation-delay: -5s; }
+.floating-equations-bg span:nth-child(40) { left: 100%; animation: float-rotate-2 29s infinite linear; animation-delay: -19s; }
+.floating-equations-bg span:nth-child(41) { left: 60%; animation: float-rotate-1 26s infinite linear; animation-delay: -8s; }
+.floating-equations-bg span:nth-child(42) { left: 40%; animation: float-rotate-2 24s infinite linear; animation-delay: -1s; }
+.floating-equations-bg span:nth-child(43) { left: 45%; animation: float-rotate-1 31s infinite linear; animation-delay: -16s; }
+.floating-equations-bg span:nth-child(44) { left: 55%; animation: float-rotate-2 27s infinite linear; animation-delay: -6s; }
+.floating-equations-bg span:nth-child(45) { left: 0%; animation: float-rotate-1 23s infinite linear; animation-delay: -13s; }
