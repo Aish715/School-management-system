@@ -10,12 +10,12 @@ import {
     ListItemText,
     ListItemIcon,
     Divider,
-    Avatar // Import Avatar for the profile picture
+    Avatar
 } from '@mui/material';
-import ClassIcon from '@mui/icons-material/Class';
+// Icons for profile details
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import PhoneIcon from '@mui/icons-material/Phone';
-import BookmarkIcon from '@mui/icons-material/Bookmark'; // Icon for Section
+import ClassIcon from '@mui/icons-material/Class'; // Using this for the Class display
 
 function StudentProfile() {
     const [profile, setProfile] = useState(null);
@@ -25,11 +25,10 @@ function StudentProfile() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                // Call the API to get the logged-in student's own profile
                 const response = await getStudentProfile();
                 setProfile(response.data);
             } catch (err) {
-                setError('Could not fetch your profile data. Please try again later.');
+                setError('Could not fetch your profile data.');
                 console.error("API Error:", err);
             } finally {
                 setLoading(false);
@@ -37,24 +36,9 @@ function StudentProfile() {
         };
 
         fetchProfile();
-    }, []); // The empty array ensures this runs only once when the component loads
+    }, []); // Empty array ensures this runs only once
 
-    // Display a loading spinner while data is being fetched
-    if (loading) {
-        return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
-    }
-
-    // Display an error message if the API call failed
-    if (error) {
-        return <Typography color="error" variant="h6" sx={{ mt: 4, textAlign: 'center' }}>{error}</Typography>;
-    }
-
-    // Display a message if no profile data was returned from the backend
-    if (!profile) {
-        return <Typography variant="h6" sx={{ mt: 4, textAlign: 'center' }}>No profile information found.</Typography>;
-    }
-    
-    // Helper function to get initials from a name for the Avatar fallback
+    // Helper to get initials from name for Avatar fallback
     const getInitials = (name) => {
         if (!name) return '';
         const nameParts = name.split(' ');
@@ -64,46 +48,71 @@ function StudentProfile() {
         return name[0].toUpperCase();
     };
 
+    if (loading) {
+        return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
+    }
+
+    if (error) {
+        return <Typography color="error" variant="h6" sx={{ mt: 4, textAlign: 'center' }}>{error}</Typography>;
+    }
+
+    if (!profile) {
+        return <Typography variant="h6" sx={{ mt: 4, textAlign: 'center' }}>No profile information found.</Typography>;
+    }
+
+    // Determine the class display string
+    const classDisplay = profile.schoolClassName
+        ? `Class ${profile.schoolClassName}` // e.g., "Class 10-A"
+        : `Grade ${profile.grade}`;         // Fallback e.g., "Grade 10"
+
     return (
         <Paper sx={{ p: { xs: 2, md: 4 }, maxWidth: 700, margin: 'auto', mt: 4, boxShadow: 3 }}>
+            {/* Top section with Avatar and Name/Class */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
-                {/* --- PROFILE PICTURE BLOCK --- */}
                 <Avatar
                     alt={profile.name}
                     src={profile.profilePictureUrl}
-                    sx={{ width: 120, height: 120, mb: 2, fontSize: '3rem', bgcolor: 'primary.main' }}
+                    sx={{ width: 120, height: 120, mb: 2, fontSize: '3rem', bgcolor: 'secondary.main' }}
                 >
-                    {/* This will show the student's initials if the image URL is invalid or missing */}
                     {getInitials(profile.name)}
                 </Avatar>
-                
-                {/* --- NAME AND GRADE (CLASS) --- */}
                 <Typography variant="h4" component="h1" gutterBottom>
                     {profile.name}
                 </Typography>
+                {/* --- UPDATED: Display Class Name or Grade --- */}
                 <Typography variant="h6" color="text.secondary">
-                    Class {profile.grade}
+                    {classDisplay}
                 </Typography>
             </Box>
-            
+
             <Divider />
 
-            {/* --- DETAILED INFORMATION LIST --- */}
+            {/* Detailed Information List */}
             <List sx={{ mt: 2 }}>
-                <ListItem>
-                    <ListItemIcon><BookmarkIcon /></ListItemIcon>
-                    <ListItemText primary="Section" secondary={profile.section || 'N/A'} />
-                </ListItem>
-                <Divider component="li" />
+                {/* Roll Number */}
                 <ListItem>
                     <ListItemIcon><ConfirmationNumberIcon /></ListItemIcon>
-                    <ListItemText primary="Roll Number" secondary={profile.rollNumber} />
+                    <ListItemText primary="Roll Number" secondary={profile.rollNumber || 'N/A'} />
                 </ListItem>
                 <Divider component="li" />
+                {/* Registered Mobile */}
                 <ListItem>
                     <ListItemIcon><PhoneIcon /></ListItemIcon>
-                    <ListItemText primary="Registered Mobile" secondary={profile.mobile} />
+                    <ListItemText primary="Registered Mobile" secondary={profile.mobile || 'N/A'} />
                 </ListItem>
+                 {/* Optional: Display Grade and Section separately if needed */}
+                 {/*
+                 <Divider component="li" />
+                 <ListItem>
+                    <ListItemIcon><ClassIcon /></ListItemIcon>
+                    <ListItemText primary="Grade" secondary={profile.grade || 'N/A'} />
+                 </ListItem>
+                 <Divider component="li" />
+                 <ListItem>
+                    <ListItemIcon><BookmarkIcon /></ListItemIcon>
+                    <ListItemText primary="Section" secondary={profile.section || 'N/A'} />
+                 </ListItem>
+                 */}
             </List>
         </Paper>
     );

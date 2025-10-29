@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserRole } from '../services/auth'; // Import the new auth helper
+import { getUserRole } from '../services/auth';
 import {
     AppBar,
     Toolbar,
@@ -15,102 +15,160 @@ import {
     Box,
     CssBaseline
 } from '@mui/material';
-import PeopleIcon from '@mui/icons-material/People';
 import HomeIcon from '@mui/icons-material/Home';
+import PeopleIcon from '@mui/icons-material/People'; // Student icon
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount'; // Teacher/Admin icon
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import SchoolIcon from '@mui/icons-material/School'; // Class icon
+import MenuBookIcon from '@mui/icons-material/MenuBook'; // Subject icon
 
-// Import the component that will be conditionally rendered
+// Import ALL components the dashboard might display
 import StudentList from './StudentList';
+import StudentProfile from './StudentProfile';
+import TakeAttendance from './TakeAttendance';
+import MyAttendance from './MyAttendance';
+import TeacherList from './TeacherList';
+import ClassList from './ClassList';
+import SubjectList from './SubjectList'; // <-- Import the new SubjectList component
 
 const drawerWidth = 240;
 
 function Dashboard() {
     const navigate = useNavigate();
-    const [activeComponent, setActiveComponent] = useState('home');
-    const [userRole, setUserRole] = useState(null);
+    const [activeComponent, setActiveComponent] = useState('home'); // Tracks which page to show
+    const [userRole, setUserRole] = useState(null); // Stores the logged-in user's role
 
-    // This effect runs once when the component is loaded
+    // Check the user's role when the dashboard first loads
     useEffect(() => {
-        // Get the user's role from the JWT stored in localStorage
-        const role = getUserRole();
+        const role = getUserRole(); // Get role from JWT in localStorage
         if (role) {
             setUserRole(role);
         } else {
-            // If there's no token or the token is invalid, the user is not logged in.
-            // Redirect them to the login page for security.
+            // If no valid role, redirect to login
             navigate('/login');
         }
-    }, [navigate]); // The dependency array ensures this runs only once on mount
+    }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        navigate('/login');
+        localStorage.removeItem('authToken'); // Clear the token
+        navigate('/login'); // Redirect to login page
     };
 
-    // JSX for the sidebar (Drawer)
+    // Dynamically build the sidebar menu based on the user's role
     const drawer = (
         <div>
-            <Toolbar />
+            <Toolbar /> {/* Spacer to push content below the AppBar */}
             <List>
+                {/* Home link - visible to everyone */}
                 <ListItem disablePadding>
                     <ListItemButton onClick={() => setActiveComponent('home')}>
-                        <ListItemIcon>
-                            <HomeIcon />
-                        </ListItemIcon>
+                        <ListItemIcon><HomeIcon /></ListItemIcon>
                         <ListItemText primary="Home" />
                     </ListItemButton>
                 </ListItem>
 
-                {/* --- ROLE-BASED RENDERING --- */}
-                {/* This is the key change: The "Students" link will only be rendered
-                    in the sidebar if the logged-in user's role is 'teacher'. */}
+                {/* --- TEACHER-ONLY LINKS --- */}
                 {userRole === 'teacher' && (
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={() => setActiveComponent('students')}>
-                            <ListItemIcon>
-                                <PeopleIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Students" />
+                    <>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => setActiveComponent('students')}>
+                                <ListItemIcon><PeopleIcon /></ListItemIcon>
+                                <ListItemText primary="Students" />
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => setActiveComponent('attendance')}>
+                                <ListItemIcon><AssignmentTurnedInIcon /></ListItemIcon>
+                                <ListItemText primary="Attendance" />
+                            </ListItemButton>
+                        </ListItem>
+                    </>
+                )}
+
+                {/* --- STUDENT-ONLY LINK --- */}
+                {userRole === 'student' && (
+                     <ListItem disablePadding>
+                        <ListItemButton onClick={() => setActiveComponent('my-attendance')}>
+                            <ListItemIcon><AssignmentTurnedInIcon /></ListItemIcon>
+                            <ListItemText primary="My Attendance" />
                         </ListItemButton>
                     </ListItem>
+                )}
+
+                {/* --- ADMIN-ONLY LINKS --- */}
+                {userRole === 'admin' && (
+                    <>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => setActiveComponent('manage-teachers')}>
+                                <ListItemIcon><SupervisorAccountIcon /></ListItemIcon>
+                                <ListItemText primary="Manage Teachers" />
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => setActiveComponent('manage-classes')}>
+                                <ListItemIcon><SchoolIcon /></ListItemIcon>
+                                <ListItemText primary="Manage Classes" />
+                            </ListItemButton>
+                        </ListItem>
+                        {/* --- NEW LINK for Subjects --- */}
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => setActiveComponent('manage-subjects')}>
+                                <ListItemIcon><MenuBookIcon /></ListItemIcon>
+                                <ListItemText primary="Manage Subjects" />
+                            </ListItemButton>
+                        </ListItem>
+                    </>
                 )}
             </List>
         </div>
     );
 
-    // A helper function to render the main content based on the active component
+    // Function to decide which main component to render based on role and selection
     const renderContent = () => {
-        switch (activeComponent) {
-            case 'students':
-                // As a second layer of security, only show the StudentList
-                // if the user is a teacher.
-                return userRole === 'teacher' ? <StudentList /> : <Typography>Access Denied.</Typography>;
-            case 'home':
-            default:
-                // Customize the welcome message based on the user's role
-                return (
-                    <Typography paragraph>
-                        Welcome to the {userRole === 'teacher' ? 'Teacher' : 'Student'} Dashboard.
-                        Please select an option from the sidebar.
-                    </Typography>
-                );
+        // --- STUDENT VIEW ---
+        if (userRole === 'student') {
+            switch (activeComponent) {
+                case 'my-attendance': return <MyAttendance />;
+                case 'home': default: return <StudentProfile />;
+            }
         }
+        // --- TEACHER VIEW ---
+        if (userRole === 'teacher') {
+            switch (activeComponent) {
+                case 'students': return <StudentList />;
+                case 'attendance': return <TakeAttendance />;
+                case 'home': default: return <Typography paragraph>Welcome, Teacher. Please select an option from the sidebar.</Typography>;
+            }
+        }
+        // --- ADMIN VIEW ---
+        if (userRole === 'admin') {
+            switch (activeComponent) {
+                case 'manage-teachers': return <TeacherList />;
+                case 'manage-classes': return <ClassList />;
+                case 'manage-subjects': return <SubjectList />; // <-- Render SubjectList when selected
+                case 'home': default: return <Typography paragraph>Welcome, Admin. Please select an option from the sidebar.</Typography>;
+            }
+        }
+        // Return null or a loading indicator if the role isn't determined yet
+        return null;
     };
 
+    // Main layout structure (AppBar, Drawer, Content Area)
     return (
         <Box sx={{ display: 'flex' }}>
-            <CssBaseline />
+             <CssBaseline /> {/* Ensures consistent baseline styling */}
+            {/* Top Navigation Bar */}
             <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <Toolbar>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                         School Dashboard
                     </Typography>
-                    <Button color="inherit" onClick={handleLogout}>
-                        Logout
-                    </Button>
+                    <Button color="inherit" onClick={handleLogout}>Logout</Button>
                 </Toolbar>
             </AppBar>
+            {/* Sidebar */}
             <Drawer
-                variant="permanent"
+                variant="permanent" // Always visible
                 sx={{
                     width: drawerWidth,
                     flexShrink: 0,
@@ -119,12 +177,13 @@ function Dashboard() {
             >
                 {drawer}
             </Drawer>
+            {/* Main Content Area */}
             <Box
                 component="main"
                 sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
             >
-                <Toolbar />
-                {renderContent()}
+                <Toolbar /> {/* Spacer to push content below the AppBar */}
+                {renderContent()} {/* Renders the selected component */}
             </Box>
         </Box>
     );

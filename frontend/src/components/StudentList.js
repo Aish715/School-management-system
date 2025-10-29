@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getStudents, deleteStudent } from '../services/api';
 import AddStudent from './AddStudent';
-import EditStudent from './EditStudent'; // Import the new Edit component
+import EditStudent from './EditStudent'; // The EditStudent component now handles class assignment
 import {
     Table,
     TableBody,
@@ -14,8 +14,8 @@ import {
     Typography,
     Box,
     Button,
-    IconButton, // For icon buttons
-    Dialog,     // For confirmation dialog
+    IconButton,
+    Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
@@ -29,15 +29,12 @@ function StudentList() {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
-    // State for managing all the pop-up modals
     const [isAddModalOpen, setAddModalOpen] = useState(false);
     const [isEditModalOpen, setEditModalOpen] = useState(false);
     const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-
-    // State to keep track of which student is currently being edited or deleted
     const [selectedStudent, setSelectedStudent] = useState(null);
 
+    // Fetch student list on component mount
     useEffect(() => {
         fetchStudents();
     }, []);
@@ -47,68 +44,84 @@ function StudentList() {
             setLoading(true);
             const response = await getStudents();
             setStudents(response.data);
+            setError(''); // Clear any previous errors
         } catch (err) {
             setError('Failed to fetch students.');
+            console.error("Fetch Students Error:", err);
         } finally {
             setLoading(false);
         }
     };
 
-    // --- Handlers for Opening Modals ---
-
+    // --- Handlers for opening modals ---
     const handleOpenEditModal = (student) => {
-        setSelectedStudent(student); // Store the student to be edited
-        setEditModalOpen(true);      // Open the edit modal
+        setSelectedStudent(student);
+        setEditModalOpen(true);
     };
 
     const handleOpenDeleteConfirm = (student) => {
-        setSelectedStudent(student);   // Store the student to be deleted
-        setDeleteConfirmOpen(true);    // Open the confirmation dialog
+        setSelectedStudent(student);
+        setDeleteConfirmOpen(true);
     };
 
-    // --- Handlers for API Actions ---
-
+    // --- Handler for confirming deletion ---
     const handleConfirmDelete = async () => {
         if (!selectedStudent) return;
         try {
             await deleteStudent(selectedStudent.id);
-            // Remove the deleted student from the list in real-time for a smooth UX
+            // Update UI immediately by removing the student from the list
             setStudents(students.filter(s => s.id !== selectedStudent.id));
-            setDeleteConfirmOpen(false); // Close the confirmation dialog
-            setSelectedStudent(null);    // Clear the selection
+            setDeleteConfirmOpen(false);
+            setSelectedStudent(null);
         } catch (err) {
             setError('Failed to delete student.');
+            console.error("Delete Student Error:", err);
+            // Keep the modal open if delete fails? Or add error display in modal?
+            // For now, just log error and close modal.
+            setDeleteConfirmOpen(false);
+            setSelectedStudent(null);
         }
     };
 
-    // --- Callback functions for real-time UI updates ---
-
+    // --- Callbacks for updating the list after Add/Edit ---
     const handleStudentAdded = (newStudent) => {
-        setStudents([...students, newStudent]);
+        setStudents([...students, newStudent]); // Add new student to the end of the list
     };
 
     const handleStudentUpdated = (updatedStudent) => {
-        // Find the student in the list and replace it with the updated version
+        // Find the student in the list and replace them with the updated data
         setStudents(students.map(s => s.id === updatedStudent.id ? updatedStudent : s));
     };
 
-    if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
-    if (error) return <Typography color="error" sx={{ mt: 4 }}>{error}</Typography>;
+    // --- Render loading state ---
+    if (loading) {
+        return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
+    }
 
+    // --- Render error state ---
+    if (error) {
+        return <Typography color="error" sx={{ mt: 4, textAlign: 'center' }}>{error}</Typography>;
+    }
+
+    // --- Render main component ---
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+            {/* Header with Title and Add Button */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}>
                 <Typography variant="h5">Student Roster</Typography>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={() => setAddModalOpen(true)}>
                     Add Student
                 </Button>
             </Box>
+
+            {/* Student Table */}
             <TableContainer>
-                <Table>
+                <Table stickyHeader aria-label="student table">
                     <TableHead>
                         <TableRow>
                             <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
-                            <TableCell sx={{ fontWeight: 'bold' }}>Grade</TableCell>
+                            {/* --- CHANGED: Show Class Name instead of just Grade --- */}
+                            <TableCell sx={{ fontWeight: 'bold' }}>Class</TableCell>
                             <TableCell sx={{ fontWeight: 'bold' }}>Roll Number</TableCell>
                             <TableCell align="right" sx={{ fontWeight: 'bold' }}>Actions</TableCell>
                         </TableRow>
@@ -117,16 +130,13 @@ function StudentList() {
                         {students.map((student) => (
                             <TableRow hover key={student.id}>
                                 <TableCell>{student.name}</TableCell>
-                                <TableCell>{student.grade}</TableCell>
+                                {/* --- CHANGED: Display schoolClassName or fallback --- */}
+                                <TableCell>{student.schoolClassName || `Grade ${student.grade}` || 'N/A'}</TableCell>
                                 <TableCell>{student.rollNumber}</TableCell>
                                 <TableCell align="right">
-                                    {/* --- NEW: Edit and Delete Buttons --- */}
-                                    <IconButton color="primary" onClick={() => handleOpenEditModal(student)}>
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton color="error" onClick={() => handleOpenDeleteConfirm(student)}>
-                                        <DeleteIcon />
-                                    </IconButton>
+                                    {/* Action Buttons */}
+                                    <IconButton color="primary" size="small" onClick={() => handleOpenEditModal(student)}><EditIcon /></IconButton>
+                                    <IconButton color="error" size="small" onClick={() => handleOpenDeleteConfirm(student)}><DeleteIcon /></IconButton>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -134,10 +144,19 @@ function StudentList() {
                 </Table>
             </TableContainer>
 
-            {/* --- DIALOGS / MODALS --- */}
-            <AddStudent open={isAddModalOpen} onClose={() => setAddModalOpen(false)} onStudentAdded={handleStudentAdded} />
-            
-            <EditStudent open={isEditModalOpen} onClose={() => setEditModalOpen(false)} onStudentUpdated={handleStudentUpdated} student={selectedStudent} />
+            {/* --- Modals for Add/Edit/Delete --- */}
+            <AddStudent
+                open={isAddModalOpen}
+                onClose={() => setAddModalOpen(false)}
+                onStudentAdded={handleStudentAdded}
+            />
+
+            <EditStudent
+                open={isEditModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                onStudentUpdated={handleStudentUpdated}
+                student={selectedStudent} // Pass the selected student to the Edit form
+            />
 
             <Dialog open={isDeleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
                 <DialogTitle>Confirm Delete</DialogTitle>

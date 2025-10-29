@@ -116,8 +116,11 @@ function Login() {
                 <Button fullWidth variant="outlined" onClick={() => setUserType('student')} className="role-button" sx={{ mb: 2, py: 2 }}>
                     I am a Student
                 </Button>
-                <Button fullWidth variant="outlined" onClick={() => setUserType('teacher')} className="role-button" sx={{ py: 2 }}>
+                <Button fullWidth variant="outlined" onClick={() => setUserType('teacher')} className="role-button" sx={{ mb: 2, py: 2 }}>
                     I am a Teacher
+                </Button>               
+                <Button fullWidth variant="outlined" onClick={() => setUserType('admin')} className="role-button" sx={{ py: 2 }}>
+                    I am an Admin (TEMP)
                 </Button>
             </Box>
         </>
